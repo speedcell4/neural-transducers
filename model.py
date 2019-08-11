@@ -1,21 +1,21 @@
+import numpy as np
 import theano
 import theano.tensor as T
-import numpy as np
-from theano.printing import Print
-from theano_toolkit import utils as U
-from theano_toolkit.parameters import Parameters
 
 import lstm
 import stack
+from theano_toolkit.parameters import Parameters
+
 print __name__
+
 
 def build(P, input_size, embedding_size, controller_size, stack_size, output_size):
     softmax_output_size = output_size + 1
-    P.embeddings = np.random.randn(input_size + 2,embedding_size).astype(np.float32)
+    P.embeddings = np.random.randn(input_size + 2, embedding_size).astype(np.float32)
     controller_step = lstm.build_step(
         P, name="controller",
-        input_size = embedding_size + stack_size,
-        hidden_size = controller_size
+        input_size=embedding_size + stack_size,
+        hidden_size=controller_size
     )
     stack_init = stack.build(size=stack_size)
 
@@ -28,18 +28,17 @@ def build(P, input_size, embedding_size, controller_size, stack_size, output_siz
     bias[-1] = -5
     P.b_controller_output = bias
 
-    init_controller_cell   = np.zeros((controller_size,), dtype=np.float32)
+    init_controller_cell = np.zeros((controller_size,), dtype=np.float32)
     init_controller_hidden = np.zeros((controller_size,), dtype=np.float32)
-    init_stack_r           = np.zeros((stack_size,), dtype=np.float32)
+    init_stack_r = np.zeros((stack_size,), dtype=np.float32)
 
-    def predict(ids,aux={}):
+    def predict(ids, aux={}):
         X = P.embeddings[ids]
         init_stack_V, init_stack_s, stack_step = stack_init(X.shape[0])
 
         def step(x, t,
                  prev_controller_cell, prev_controller_hidden,
                  prev_V, prev_s, prev_r):
-
             controller_input = T.concatenate([x, prev_r])
             controller_cell, controller_hidden = \
                 controller_step(
@@ -48,14 +47,14 @@ def build(P, input_size, embedding_size, controller_size, stack_size, output_siz
                     prev_hidden=prev_controller_hidden
                 )
 
-            controller_output = T.dot(controller_hidden, P.W_controller_output) +\
-                P.b_controller_output
+            controller_output = T.dot(controller_hidden, P.W_controller_output) + \
+                                P.b_controller_output
 
             output = controller_output[:softmax_output_size]
-            v      = T.tanh(controller_output[
-                        softmax_output_size:
-                        softmax_output_size + stack_size
-                    ])
+            v = T.tanh(controller_output[
+                       softmax_output_size:
+                       softmax_output_size + stack_size
+                       ])
             flags = T.nnet.sigmoid(controller_output[-2:])
 
             V, s, r = stack_step(
@@ -86,7 +85,9 @@ def build(P, input_size, embedding_size, controller_size, stack_size, output_siz
         aux['controller_output'] = sequences[-2]
 
         return outputs
+
     return predict
+
 
 if __name__ == "__main__":
     P = Parameters()

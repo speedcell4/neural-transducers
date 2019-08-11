@@ -1,12 +1,7 @@
+import numpy as np
 import theano
 import theano.tensor as T
-import numpy as np
-import cPickle as pickle
 
-from itertools import izip
-
-from theano_toolkit import utils as U
-from theano_toolkit import updates
 from theano_toolkit.parameters import Parameters
 
 
@@ -25,12 +20,14 @@ def build(P, name, input_size, hidden_size):
             if row_transform != None:
                 x = row_transform(x)
             return step(x, prev_cell, prev_hid)
+
         [cell, hidden], _ = theano.scan(
             _step,
             sequences=[X],
             outputs_info=[init_cell, init_hidden],
         )
         return cell, hidden
+
     return lstm_layer
 
 
@@ -88,6 +85,7 @@ def build_step(P, name, input_size, hidden_size):
 
         hid = out_gate * T.tanh(cell)
         return cell, hid
+
     return step
 
 
