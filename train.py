@@ -8,7 +8,7 @@ from theano_toolkit.parameters import Parameters
 
 
 def clip(delta, thresh):
-    thresh = np.float32(thresh)
+    thresh = np.float64(thresh)
     norm = T.sqrt(T.sum(delta ** 2))
     return T.switch(
         T.gt(norm, thresh),
@@ -38,15 +38,15 @@ def make_train_functions():
     parameters = P.values()
     gradients = T.grad(T.sum(error), wrt=parameters)
     shapes = [p.get_value().shape for p in parameters]
-    count = theano.shared(np.float32(0))
+    count = theano.shared(np.float64(0))
     acc_grads = [
-        theano.shared(np.zeros(s, dtype=np.float32))
+        theano.shared(np.zeros(s, dtype=np.float64))
         for s in shapes
     ]
 
     acc_update = [(a, a + g) for a, g in zip(acc_grads, gradients)] + \
-                 [(count, count + np.float32(1))]
-    acc_clear = [(a, np.float32(0) * a) for a in acc_grads] + \
+                 [(count, count + np.float64(1))]
+    acc_clear = [(a, np.float64(0) * a) for a in acc_grads] + \
                 [(count, np.int32(0))]
     avg_grads = [(g / count) for g in acc_grads]
     avg_grads = [clip(g, 1) for g in acc_grads]
@@ -69,7 +69,9 @@ def make_train_functions():
 
 
 if __name__ == "__main__":
+    print 'start building'
     acc, update, test = make_train_functions()
+    print 'finish building'
     import tasks
 
     error = np.inf
@@ -80,8 +82,8 @@ if __name__ == "__main__":
         total = 0
         for _ in xrange(10):
             x, y = tasks.reverse(128, length)
-            #            print x
-            #            print (129 + y)%129
+            print x
+            print (129 + y) % 129
             total_error += acc(x, y)
             total += 1
         error = total_error / total

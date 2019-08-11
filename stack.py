@@ -16,8 +16,8 @@ def rev_cumsum(seq):
 
 def build(size):
     def init(sequence_length):
-        initial_V = T.alloc(np.float32(0), sequence_length, size)
-        initial_s = T.alloc(np.float32(0), sequence_length)
+        initial_V = T.alloc(np.float64(0), sequence_length, size)
+        initial_s = T.alloc(np.float64(0), sequence_length)
 
         def step(t, v, d, u, prev_V, prev_s):
             prev_V_to_t = prev_V[:t]
@@ -52,7 +52,7 @@ def build(size):
 if __name__ == "__main__":
     # print T.concatenate([
     #            rev_cumsum(T.arange(10)[1:]),
-    #            [np.float32(0.)]
+    #            [np.float64(0.)]
     #        ]).eval()
     print rev_cumsum(T.arange(10)).eval()
     stack_init = build(5)
@@ -62,9 +62,9 @@ if __name__ == "__main__":
     for t, (push, pop) in enumerate([(1, 0), (1, 0), (0, 1), (1, 0), (1, 0), (0, 1), (0, 1), (1, 0)]):
         V, s, r = step(
             t=t,
-            v=theano.shared(np.random.randn(5).astype(np.float32)),
-            d=theano.shared(np.float32(push * 0.99)),
-            u=theano.shared(np.float32(pop * 0.99)),
+            v=theano.shared(np.random.randn(5).astype(np.float64)),
+            d=theano.shared(np.float64(push * 0.99)),
+            u=theano.shared(np.float64(pop * 0.99)),
             prev_V=V,
             prev_s=s
         )

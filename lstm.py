@@ -40,7 +40,7 @@ def build_step(P, name, input_size, hidden_size):
     P[name_W_hidden] = (0.1 * 2) * (np.random.rand(hidden_size, hidden_size * 4) - 0.5)
     P[name_W_cell] = (0.1 * 2) * (np.random.rand(hidden_size, hidden_size * 3) - 0.5)
 
-    bias_init = np.zeros((hidden_size * 4,), dtype=np.float32)
+    bias_init = np.zeros((hidden_size * 4,), dtype=np.float64)
     bias_init[1 * hidden_size:2 * hidden_size] = 3.
     P[name_b] = bias_init
     biases = P[name_b]

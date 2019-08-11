@@ -46,8 +46,8 @@ def get_shapes(parameters):
 
 @track_parameters
 def adadelta(parameters, gradients,
-             rho=np.float32(0.95),
-             learning_rate=np.float32(1e-4),
+             rho=np.float64(0.95),
+             learning_rate=np.float64(1e-4),
              P=None):
     eps = learning_rate
     shapes = get_shapes(parameters)
@@ -58,7 +58,7 @@ def adadelta(parameters, gradients,
                      for p, s in izip(parameters, shapes)]
 
     gradients_sq = [T.sqr(g) for g in gradients]
-    gradients_sq_new = [rho * acc_g_sq + (np.float32(1) - rho) * g_sq
+    gradients_sq_new = [rho * acc_g_sq + (np.float64(1) - rho) * g_sq
                         for acc_g_sq, g_sq in izip(
             acc_gradients_sq, gradients_sq)]
     learning_rate_sq = [(d_sq + eps) / (g_sq + eps)
@@ -67,7 +67,7 @@ def adadelta(parameters, gradients,
 
     deltas_sq = [lr_sq * g_sq for lr_sq,
                                   g_sq in izip(learning_rate_sq, gradients_sq)]
-    deltas_sq_new = [rho * acc_d_sq + (np.float32(1.) - rho) *
+    deltas_sq_new = [rho * acc_d_sq + (np.float64(1.) - rho) *
                      d_sq for acc_d_sq, d_sq in izip(acc_deltas_sq, deltas_sq)]
 
     deltas = [T.sqrt(lr_sq) * g for lr_sq,
@@ -148,7 +148,7 @@ def adam(parameters, gradients,
          epsilon=1e-8,
          P=None):
     shapes = get_shapes(parameters)
-    P.t = np.float32(1)
+    P.t = np.float64(1)
 
     moment1_acc = [create_param(P, "moment1_" + p.name, np.zeros(s))
                    for p, s in izip(parameters, shapes)]

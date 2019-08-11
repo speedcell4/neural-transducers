@@ -14,3 +14,11 @@ def reverse(max_int, sequence_length):
     input_sequence[:sequence_length] = sequence
     output_sequence[-sequence_length:] = sequence[::-1]
     return input_sequence, output_sequence
+
+
+if __name__ == '__main__':
+    length = 6
+    x, y = reverse(128, length)
+
+    print x
+    print y
